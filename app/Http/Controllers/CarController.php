@@ -290,8 +290,8 @@ $car->seller_address = $validated['address'] ?? null;
 
 
 public function update(Request $request, $id)
-{
-    $car = Car::findOrFail($id);
+{ 
+$car = Car::findOrFail($id);
 
     // Validate required fields
     $validated = $request->validate([
@@ -325,6 +325,7 @@ public function update(Request $request, $id)
     $car->contact_email = $request->email;
     $car->seller_address = $request->address;
     $car->save();
+
 
     // Update images if uploaded
     if ($request->hasFile('images')) {
