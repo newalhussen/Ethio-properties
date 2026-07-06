@@ -27,10 +27,10 @@ Route::middleware(['auth', 'admin'])->group(function () {
         
         // Moderation Routes
         Route::get('/moderation', [ModerationController::class, 'dashboard'])->name('moderation');
-        Route::post('/houses/{house}/approve', [ModerationController::class, 'approveHouse'])->name('houses.approve');
-        Route::post('/houses/{house}/reject', [ModerationController::class, 'rejectHouse'])->name('houses.reject');
-        Route::post('/cars/{car}/approve', [ModerationController::class, 'approveCar'])->name('cars.approve');
-        Route::post('/cars/{car}/reject', [ModerationController::class, 'rejectCar'])->name('cars.reject');
+        // Route::post('/houses/{house}/approve', [ModerationController::class, 'approveHouse'])->name('houses.approve');
+        // Route::post('/houses/{house}/reject', [ModerationController::class, 'rejectHouse'])->name('houses.reject');
+        // Route::post('/cars/{car}/approve', [ModerationController::class, 'approveCar'])->name('cars.approve');
+        // Route::post('/cars/{car}/reject', [ModerationController::class, 'rejectCar'])->name('cars.reject');
     });
 });
 
