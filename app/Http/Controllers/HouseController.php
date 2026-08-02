@@ -275,18 +275,22 @@ public function create()
 
     // add edit/update/destroy as needed
 
-    public function contact(Request $request, House $house)
+   public function contact(Request $request, House $house)
 {
     $request->validate([
-        'name'=>'required|string',
-        'email'=>'required|email',
-        'message'=>'required|string',
+        'name' => 'required|string',
+        'phone' => 'required|string',
     ]);
 
-    // send email to seller or store enquiry
-    // Mail::to($house->contact_email ?? 'owner@example.com')->send(new InquiryMail(...));
+    // You can store callback request here later
+    // Example:
+    // CallbackRequest::create([
+    //     'house_id' => $house->id,
+    //     'name' => $request->name,
+    //     'phone' => $request->phone,
+    // ]);
 
-    return back()->with('success','Message sent to seller.');
+    return back()->with('success','Call back request sent successfully.');
 }
 
 public function ownerIndex()

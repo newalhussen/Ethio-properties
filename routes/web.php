@@ -159,6 +159,11 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'admin'])->group(fun
         '/houses/{house}/toggle-featured',
         [App\Http\Controllers\Admin\HouseController::class, 'toggleFeatured']
     )->name('houses.toggleFeatured');
+    Route::post('/cars/{id}/approve', [App\Http\Controllers\Admin\CarController::class, 'approve'])
+    ->name('cars.approve');
+
+Route::post('/cars/{id}/reject', [App\Http\Controllers\Admin\CarController::class, 'reject'])
+    ->name('cars.reject');
 
 });
 

@@ -116,35 +116,41 @@
 </button>
 
     <!-- Hidden Form -->
-    <div 
-        id="callbackFormWrapper" 
-        class="mt-4 hidden opacity-0 translate-y-2 transition-all duration-300"
-    >
-        <form action="#" method="POST" class="space-y-4">
-            @csrf
+<div 
+    id="callbackFormWrapper" 
+    class="mt-4 hidden opacity-0 translate-y-2 transition-all duration-300"
+>
+    <form action="{{ route('owner.messages.store') }}" method="POST" class="space-y-4">
+        @csrf
 
-            <input 
-                type="text" 
-                name="name" 
-                placeholder="Your Name"
-                class="w-full px-4 py-3 rounded-xl border border-gray-300 focus:ring-2 focus:ring-slate-800 focus:border-slate-800"
-            >
+        <input type="hidden" name="post_id" value="{{ $house->id }}">
+        <input type="hidden" name="post_type" value="house">
+        <input type="hidden" name="type" value="callback">
 
-            <input 
-                type="text" 
-                name="phone" 
-                placeholder="Phone Number"
-                class="w-full px-4 py-3 rounded-xl border border-gray-300 focus:ring-2 focus:ring-slate-800 focus:border-slate-800"
-            >
+        <input 
+            type="text" 
+            name="name" 
+            placeholder="Your Name"
+            class="w-full px-4 py-3 rounded-xl border border-gray-300 focus:ring-2 focus:ring-slate-800 focus:border-slate-800"
+            required
+        >
 
-            <button 
-                type="submit"
-                class="w-full py-3 bg-slate-800 text-white rounded-xl font-semibold hover:bg-slate-900 transition"
-            >
-                Submit
-            </button>
-        </form>
-    </div>
+        <input 
+            type="text" 
+            name="phone" 
+            placeholder="Phone Number"
+            class="w-full px-4 py-3 rounded-xl border border-gray-300 focus:ring-2 focus:ring-slate-800 focus:border-slate-800"
+            required
+        >
+
+        <button 
+            type="submit"
+            class="w-full py-3 bg-slate-800 text-white rounded-xl font-semibold hover:bg-slate-900 transition"
+        >
+            Submit
+        </button>
+    </form>
+</div>
 </div>
 
                 <!-- Contact Seller Form -->

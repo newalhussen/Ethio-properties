@@ -40,6 +40,7 @@ class GoogleController extends Controller
                 'email_verified_at' => now(),
                 'password' => bcrypt(Str::random(24)),
                 'avatar' => $googleUser->getAvatar(),
+                'role' => 'owner',
             ]);
         }
     }
