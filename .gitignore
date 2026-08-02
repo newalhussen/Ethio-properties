@@ -4,3 +4,29 @@
 /storage
 /public/storage
 google/service-account-credentials.json
+
+# Legacy leftover uploads from an unrelated prior template / dead admin-settings feature.
+# public/uploads/cars and public/uploads/houses are deliberately NOT listed here — they are
+# still relied on as a fallback image source by HouseController/CarController.
+/public/uploads/Application
+/public/uploads/avatars
+/public/uploads/Banner
+/public/uploads/Blog
+/public/uploads/BlogCategory
+/public/uploads/Department
+/public/uploads/Directorate
+/public/uploads/doctors
+/public/uploads/EventCategory
+/public/uploads/galleries
+/public/uploads/Gallery
+/public/uploads/Head
+/public/uploads/History
+/public/uploads/InitiativeFile
+/public/uploads/InitiativePhoto
+/public/uploads/leadership
+/public/uploads/Partner
+/public/uploads/Publication
+/public/uploads/PublicationCategory
+/public/uploads/Setting
+/public/uploads/Tender
+/public/uploads/Testimony
