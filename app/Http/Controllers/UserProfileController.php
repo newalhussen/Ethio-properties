@@ -22,7 +22,7 @@ public function update(Request $request)
         'name' => 'required|string|max:255',
         'phone' => 'nullable|string|max:20',
         'email' => 'required|email',
-        'avatar' => 'nullable|image|max:2048', // max 2MB
+        'avatar' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048', // max 2MB
     ]);
 
     // Handle avatar upload

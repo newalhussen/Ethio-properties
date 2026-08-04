@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Models\Car;
 use App\Models\View;
 use App\Models\Notification;
+use App\Rules\PhoneNumberRule;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -83,14 +84,14 @@ public function store(Request $request)
         'price_type' => 'required|in:fixed,negotiable,slightly_negotiable',
         'sale_rent' => 'required|in:sale,rent',
         'seller_type' => 'required|string',
-        'phone' => 'required|string|max:255',
+        'phone' => ['required', 'string', 'max:255', new PhoneNumberRule],
         'email' => 'nullable|email|max:255',
         'description' => 'nullable|string',
         'seats' => 'nullable|integer|min:1|max:20',
         'doors' => 'nullable|integer|min:1|max:10',
         'drive_type' => 'nullable|string|max:50',
         'condition' => 'nullable|string|max:50',
-        'images.*' => 'nullable|image|max:4096',
+        'images.*' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:4096',
         'video' => 'nullable|file|mimes:mp4,mov,avi|max:20480',
     ]);
 
@@ -176,7 +177,6 @@ public function store(Request $request)
             'price' => 'required|numeric|min:0',
             'price_type' => 'required|in:fixed,negotiable,slightly_negotiable',
             'sale_rent' => 'required|in:sale,rent',
-            'is_featured' => 'nullable|boolean',
         ]);
 
         $car->update($validated);
@@ -211,6 +211,21 @@ public function destroy($id)
         return redirect()
             ->back()
             ->with('success', 'Car marked as sold.');
+    }
+
+    /**
+     * Record that a visitor revealed/viewed this car's phone number.
+     */
+    public function phoneView(Car $car)
+    {
+        View::create([
+            'car_id' => $car->id,
+            'user_id' => Auth::id(),
+            'type' => 'phone',
+            'ip_address' => request()->ip(),
+        ]);
+
+        return response()->json(['success' => true]);
     }
 
     /**

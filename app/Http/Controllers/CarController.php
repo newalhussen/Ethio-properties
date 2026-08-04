@@ -5,8 +5,10 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Car;
 use App\Models\CarImage;
-use App\Models\Seller;
+use App\Models\View;
+use App\Rules\PhoneNumberRule;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
 
 class CarController extends Controller
 {
@@ -117,13 +119,8 @@ class CarController extends Controller
     // Prepare cars for JavaScript (copying house logic exactly)
     $carsForJS = $cars->map(function($car){
         // Normalize images to an array of URLs (supports storage and public paths)
-        $rawImages = [];
-        if (!empty($car->images) && is_array($car->images)) {
-            $rawImages = $car->images;
-        } elseif (!empty($car->images) && !is_array($car->images)) {
-            $decoded = json_decode($car->images, true);
-            $rawImages = is_array($decoded) ? $decoded : [];
-        }
+        // Car::$casts already decodes 'images' to an array (or null)
+        $rawImages = $car->images ?? [];
 
         $imageUrls = [];
         foreach ($rawImages as $p) {
@@ -213,7 +210,7 @@ public function store(Request $request)
 
         // Seller info
 'name' => 'required|string',
-'phone' => 'required|string',
+'phone' => ['required', 'string', new PhoneNumberRule],
 'seller_type' => 'required|string',
 'email' => 'nullable|email',
 'address' => 'nullable|string',
@@ -221,7 +218,6 @@ public function store(Request $request)
 
         'sale_rent' => 'required|in:sale,rent',
         'price_type' => 'required|in:fixed,negotiable,slightly_negotiable',
-        'is_featured' => 'nullable|boolean',
         'images.*' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
         'video' => 'nullable|mimetypes:video/mp4,video/avi,video/mpeg|max:10240',
         'description' => 'nullable|string',
@@ -252,7 +248,6 @@ $car->seller_address = $validated['address'] ?? null;
 
     $car->sale_rent = $validated['sale_rent'];
     $car->price_type = $validated['price_type'];
-    $car->is_featured = $request->has('is_featured');
     $car->user_id = auth()->id(); // Owner of the post
     $car->description = $validated['description'] ?? null;
     $car->seats = $validated['seats'] ?? null;
@@ -290,8 +285,12 @@ $car->seller_address = $validated['address'] ?? null;
 
 
 public function update(Request $request, $id)
-{ 
+{
 $car = Car::findOrFail($id);
+
+    if ($car->user_id !== auth()->id()) {
+        abort(403, 'Unauthorized');
+    }
 
     // Validate required fields
     $validated = $request->validate([
@@ -310,6 +309,8 @@ $car = Car::findOrFail($id);
     'seller_type' => 'required|string',
     'contact_email' => 'nullable|email',
     'seller_address' => 'nullable|string',
+    'images.*' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
+    'video' => 'nullable|mimetypes:video/mp4,video/avi,video/mpeg|max:10240',
     ]);
 
     // Convert features to JSON
@@ -329,18 +330,32 @@ $car = Car::findOrFail($id);
 
     // Update images if uploaded
     if ($request->hasFile('images')) {
+        $oldImages = $car->images ?? [];
+
         $paths = [];
         foreach ($request->file('images') as $img) {
             $paths[] = $img->store('cars', 'public');
         }
         $car->images = $paths;
         $car->save();
+
+        foreach ($oldImages as $oldImg) {
+            if (Storage::disk('public')->exists($oldImg)) {
+                Storage::disk('public')->delete($oldImg);
+            }
+        }
     }
 
     // Update video if uploaded
     if ($request->hasFile('video')) {
+        $oldVideo = $car->video;
+
         $car->video = $request->file('video')->store('cars/videos', 'public');
         $car->save();
+
+        if (!empty($oldVideo) && Storage::disk('public')->exists($oldVideo)) {
+            Storage::disk('public')->delete($oldVideo);
+        }
     }
 
     // Redirect to total posts with success message
@@ -356,15 +371,26 @@ $car = Car::findOrFail($id);
     public function show($id)
     {
         $car = Car::findOrFail($id);
-        
-        // Decode and normalize images to URLs (copying house logic)
-        $rawImages = [];
-        if (!empty($car->images) && is_array($car->images)) {
-            $rawImages = $car->images;
-        } elseif (!empty($car->images) && !is_array($car->images)) {
-            $decoded = json_decode($car->images, true);
-            $rawImages = is_array($decoded) ? $decoded : [];
+
+        $isOwner = auth()->check() && auth()->id() === $car->user_id;
+        $isAdmin = auth()->check() && auth()->user()->hasRole('admin');
+
+        if ($car->status !== 'approved' && !$isOwner && !$isAdmin) {
+            abort(404);
         }
+
+        if (auth()->id() !== $car->user_id) {
+            View::create([
+                'car_id' => $car->id,
+                'user_id' => auth()->id(),
+                'type' => 'normal',
+                'ip_address' => request()->ip(),
+            ]);
+        }
+
+        // Decode and normalize images to URLs (copying house logic)
+        // Car::$casts already decodes 'images' to an array (or null)
+        $rawImages = $car->images ?? [];
     
         $imageUrls = [];
         foreach ($rawImages as $p) {
@@ -394,6 +420,11 @@ $car = Car::findOrFail($id);
     public function destroy($id)
     {
         $car = Car::findOrFail($id);
+
+        if ($car->user_id !== auth()->id()) {
+            abort(403, 'Unauthorized');
+        }
+
         $car->delete(); // soft delete
         return redirect()->back()->with('success', '🚗 Car moved to trash (soft deleted).');
     }
@@ -404,6 +435,11 @@ $car = Car::findOrFail($id);
     public function restore($id)
     {
         $car = Car::onlyTrashed()->findOrFail($id);
+
+        if ($car->user_id !== auth()->id()) {
+            abort(403, 'Unauthorized');
+        }
+
         $car->restore();
 
         return redirect()->back()->with('success', '✅ Car restored successfully!');
@@ -415,6 +451,23 @@ $car = Car::findOrFail($id);
     public function forceDelete($id)
     {
         $car = Car::onlyTrashed()->findOrFail($id);
+
+        if ($car->user_id !== auth()->id()) {
+            abort(403, 'Unauthorized');
+        }
+
+        if (!empty($car->images)) {
+            foreach ($car->images as $img) {
+                if (Storage::disk('public')->exists($img)) {
+                    Storage::disk('public')->delete($img);
+                }
+            }
+        }
+
+        if (!empty($car->video) && Storage::disk('public')->exists($car->video)) {
+            Storage::disk('public')->delete($car->video);
+        }
+
         $car->forceDelete();
 
         return redirect()->back()->with('success', '❌ Car permanently deleted.');

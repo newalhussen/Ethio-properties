@@ -145,45 +145,5 @@
 </a>
 
   </div>
-
-  <!-- 🏠 House Form -->
-  <div class="form-section" id="houseForm">
-    <button class="btn-back" id="backFromHouse">
-      ← Go Back
-    </button>
-    <h3 style="color:#440057; margin-bottom:1.5rem;">Please fill in your property details</h3>
-    <form action="/properties/create" method="GET">
-      <input type="text" class="form-control" placeholder="Location" required>
-      <input type="number" class="form-control" placeholder="Bedrooms" required>
-      <input type="number" class="form-control" placeholder="Price" required>
-      <button type="submit" class="btn-primary">Submit Property</button>
-    </form>
-  </div>
 </div>
-
-<script>
-  const heading = document.getElementById('heading');
-  const icons = document.getElementById('iconOptions');
-  const carForm = document.getElementById('carForm');
-  const houseForm = document.getElementById('houseForm');
-  const carOption = document.getElementById('carOption');
-  const houseOption = document.getElementById('houseOption');
-  const backFromCar = document.getElementById('backFromCar');
-  const backFromHouse = document.getElementById('backFromHouse');
-
-  // --- Back buttons ---
-  backFromCar.addEventListener('click', () => {
-    carForm.style.display = 'none';
-    icons.style.display = 'flex';
-    icons.style.opacity = '1';
-    heading.textContent = "What do you want to post?";
-  });
-
-  backFromHouse.addEventListener('click', () => {
-    houseForm.style.display = 'none';
-    icons.style.display = 'flex';
-    icons.style.opacity = '1';
-    heading.textContent = "What do you want to post?";
-  });
-</script>
 @endsection

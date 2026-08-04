@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\House;
 use App\Models\Car;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 
 class OwnerRecycleBinController extends Controller
 {
@@ -54,6 +55,14 @@ public function index()
             ->where('user_id', auth()->id())
             ->findOrFail($id);
 
+        if (!empty($house->images)) {
+            foreach ($house->images as $img) {
+                if (Storage::disk('public')->exists($img)) {
+                    Storage::disk('public')->delete($img);
+                }
+            }
+        }
+
         $house->forceDelete();
 
         return back()->with('success', '❌ House permanently deleted.');
@@ -75,6 +84,18 @@ public function index()
         $car = Car::onlyTrashed()
             ->where('user_id', auth()->id())
             ->findOrFail($id);
+
+        if (!empty($car->images)) {
+            foreach ($car->images as $img) {
+                if (Storage::disk('public')->exists($img)) {
+                    Storage::disk('public')->delete($img);
+                }
+            }
+        }
+
+        if (!empty($car->video) && Storage::disk('public')->exists($car->video)) {
+            Storage::disk('public')->delete($car->video);
+        }
 
         $car->forceDelete();
 

@@ -27,12 +27,6 @@ protected $fillable = [
         'images' => 'array',
     ];
 
-    // Relation to Property
-    public function property()
-    {
-        return $this->belongsTo(Property::class);
-    }
-
 public function user()
 {
     return $this->belongsTo(User::class);

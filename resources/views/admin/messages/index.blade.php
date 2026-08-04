@@ -65,7 +65,7 @@
                                         <div class="mt-1 small text-muted">
                                             <strong>{{ $msg->post_preview['title'] }}</strong>
                                             @if($msg->post_preview['price'])
-                                                • {{ number_format($msg->post_preview['price'], 2) }} Birr
+                                                • ETB {{ number_format($msg->post_preview['price']) }}
                                             @endif
                                         </div>
                                     @endif

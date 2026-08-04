@@ -17,24 +17,10 @@ class CheckRole
      */
     public function handle(Request $request, Closure $next ,$role)
     {
-        //dd($role);
-        if (Auth::user()->role == $role ) {
-            //return route('admin.dashboard');
+        if (Auth::check() && Auth::user()->role == $role) {
             return $next($request);
-        } 
-        // abort(403);
-        // // else if (Auth::user()->role == "user") {
-            
-        // //     return redirect()->route('index');
-        // // }
-        // // elseif(Auth::user()->role == 'agent'){
-        // //     return redirect()->route('agent');
-        // // } 
-        // else {
-        //     return '/';
-        // }
-        else{
-            return back();
         }
+
+        return back();
     }
 }

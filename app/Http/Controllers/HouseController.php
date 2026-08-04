@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use App\Http\Requests\StoreHouseRequest;
 use App\Http\Requests\UpdateHouseRequest;
 use App\Models\House;
+use App\Models\CallbackRequest;
+use App\Rules\PhoneNumberRule;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 
@@ -55,13 +57,8 @@ public function index(Request $request)
     // Prepare houses for AlpineJS (JS-friendly array)
     $housesForJS = $houses->map(function($house){
         // Normalize images to an array of URLs (supports storage and public paths)
-        $rawImages = [];
-        if (!empty($house->images) && is_array($house->images)) {
-            $rawImages = $house->images;
-        } elseif (!empty($house->images) && !is_array($house->images)) {
-            $decoded = json_decode($house->images, true);
-            $rawImages = is_array($decoded) ? $decoded : [];
-        }
+        // House::$casts already decodes 'images' to an array (or null)
+        $rawImages = $house->images ?? [];
 
         $imageUrls = [];
         foreach ($rawImages as $p) {
@@ -145,6 +142,9 @@ public function update(UpdateHouseRequest $request, House $house)
 
     $data = $request->validated();
 
+    // Moderation status/slug must never be settable by the owner via this endpoint
+    unset($data['status'], $data['slug']);
+
     // Handle amenities (already cast as array)
     $data['amenities'] = $request->input('amenities', []);
 
@@ -179,16 +179,9 @@ public function destroy(House $house)
         abort(403, 'Unauthorized');
     }
 
-    // Optional: delete images from storage
-    if(!empty($house->images)) {
-        foreach ($house->images as $img) {
-            if(Storage::disk('public')->exists($img)) {
-                Storage::disk('public')->delete($img);
-            }
-        }
-    }
-
-    $house->delete(); // Soft delete if using SoftDeletes
+    // Soft delete only — files stay on disk until the recycle bin permanently
+    // deletes the house, otherwise a later restore would show broken images.
+    $house->delete();
 
     return redirect()->route('owner.totalPosts')
                      ->with('success', 'House deleted successfully!');
@@ -221,6 +214,9 @@ public function create()
         $data['verified'] = false; // Default to unverified
         $data['status'] = 'pending'; // Default to pending approval
 
+        // Strip formatting (e.g. "1,500,000") so the float cast doesn't truncate at the first comma
+        $data['price'] = str_replace(',', '', $data['price']);
+
         // Set current user as owner
         if (auth()->check()) {
             $data['user_id'] = auth()->id();
@@ -240,15 +236,17 @@ public function create()
     public function show($id)
     {
         $house = House::findOrFail($id);
-    
-        // Decode and normalize images to URLs
-        $rawImages = [];
-        if (!empty($house->images) && is_array($house->images)) {
-            $rawImages = $house->images;
-        } elseif (!empty($house->images) && !is_array($house->images)) {
-            $decoded = json_decode($house->images, true);
-            $rawImages = is_array($decoded) ? $decoded : [];
+
+        $isOwner = auth()->check() && auth()->id() === $house->user_id;
+        $isAdmin = auth()->check() && auth()->user()->hasRole('admin');
+
+        if ($house->status !== 'approved' && !$isOwner && !$isAdmin) {
+            abort(404);
         }
+
+        // Decode and normalize images to URLs
+        // House::$casts already decodes 'images' to an array (or null)
+        $rawImages = $house->images ?? [];
     
         $imageUrls = [];
         foreach ($rawImages as $p) {
@@ -279,16 +277,16 @@ public function create()
 {
     $request->validate([
         'name' => 'required|string',
-        'phone' => 'required|string',
+        'phone' => ['required', 'string', new PhoneNumberRule],
+        'message' => 'nullable|string',
     ]);
 
-    // You can store callback request here later
-    // Example:
-    // CallbackRequest::create([
-    //     'house_id' => $house->id,
-    //     'name' => $request->name,
-    //     'phone' => $request->phone,
-    // ]);
+    CallbackRequest::create([
+        'house_id' => $house->id,
+        'name' => $request->name,
+        'phone' => $request->phone,
+        'message' => $request->message,
+    ]);
 
     return back()->with('success','Call back request sent successfully.');
 }

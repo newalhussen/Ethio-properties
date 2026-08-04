@@ -1,5 +1,8 @@
 @extends('layouts.app')
 
+@section('title', 'Cars for Sale & Rent in Ethiopia | Ethio Property')
+@section('meta_description', 'Browse cars for sale and rent across Ethiopia. Filter by brand, price, and body type to find your next car.')
+
 @section('content')
 <div x-data="carPage()" x-init="init()">
   <div class="cars-page">
@@ -520,9 +523,9 @@
 <div class="image-container">
 
 
-    <img 
-        :src="car.images.length > 0 ? car.images[0] : '/storage/placeholder.jpg'" 
-        alt="Car" 
+    <img
+        :src="car.images.length > 0 ? car.images[0] : '/storage/placeholder.jpg'"
+        :alt="car.title || 'Car'"
         class="car-image"
     >
 </div>
@@ -616,7 +619,6 @@
 </main>
 </div>
 </div>
-<script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
 <script>
 function carPage() {
   return {
@@ -645,7 +647,7 @@ function carPage() {
       sort_by: "newest"
     },
 
-    cars: {!! json_encode($carsForJS) !!},
+    cars: @json($carsForJS),
 
     init() {
       // Set initial sale_rent from URL parameter

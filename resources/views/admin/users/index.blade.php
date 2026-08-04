@@ -13,6 +13,9 @@
             <div class="row">
                 <div class="col-lg-7 col-md-6 col-sm-12">
                     <h2>All Users</h2>
+                    <a href="{{ route('admin.users.create') }}" class="btn btn-primary btn-icon">
+                        <i class="zmdi zmdi-plus"></i>
+                    </a>
                 </div>
                 <div class="col-lg-5 col-md-6 col-sm-12">
                     <button class="btn btn-primary btn-icon float-right right_icon_toggle_btn" type="button">

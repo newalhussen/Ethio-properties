@@ -6,7 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Car;
 use App\Models\House;
 use App\Models\User;
-use App\Models\Contact;
+use App\Models\Message;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
@@ -28,7 +28,7 @@ class AdminController extends Controller
             'Car' => Car::count(),
             'House' => House::count(),
             'User' => User::count(),
-            'Contact' => Contact::count(),
+            'Contact' => Message::count(),
             'Pending' => Car::where('status', 'pending')->count() + House::where('status', 'pending')->count(),
             'ApprovedCars' => Car::where('status', 'approved')->count(),
             'ApprovedHouses' => House::where('status', 'approved')->count(),
@@ -43,7 +43,7 @@ class AdminController extends Controller
         $recentUsers = User::latest()->limit(5)->get();
 
         // Get recent messages
-        $recentMessages = Contact::latest()->limit(5)->get();
+        $recentMessages = Message::with('customer')->latest()->limit(5)->get();
 
         return view('admin.dashboard', compact(
             'counts',

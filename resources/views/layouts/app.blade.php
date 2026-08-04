@@ -3,7 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ethio Property</title>
+    <title>@yield('title', 'Ethio Property - Buy, Sell & Rent Houses and Cars in Ethiopia')</title>
+    <meta name="description" content="@yield('meta_description', 'Browse houses and cars for sale or rent across Ethiopia. Post your own listing free on Ethio Property.')">
     <link rel="stylesheet" href="{{ asset('assets/css/cards.css') }}">
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>

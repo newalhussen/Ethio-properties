@@ -212,7 +212,6 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     document.getElementById('featuredBtn').addEventListener('click', async () => {
-     console.log('FEATURED CLICKED');
     const res = await fetch(`/admin/houses/${houseId}/toggle-featured`, {
         method: 'POST',
         headers: {

@@ -25,7 +25,7 @@
 
             @foreach($cars as $car)
                 @php
-                    $priceFormatted = number_format($car->price ?? 0, 2) . ' Birr';
+                    $priceFormatted = 'ETB ' . number_format($car->price ?? 0);
                 @endphp
                 <div class="car-card relative bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 flex overflow-hidden w-full h-40"
     data-status="{{ $car->status }}">

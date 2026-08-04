@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
-use App\Models\Log;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
@@ -58,7 +57,7 @@ public function show($id)
     public function create()
     {
         $roles = Role::all();
-        return view('admin.user.create', compact('roles'));
+        return view('admin.users.create', compact('roles'));
     }
 
 public function store(Request $request)
@@ -88,12 +87,6 @@ public function store(Request $request)
 
     // ✅ Attach role to Spatie pivot
     $user->assignRole($role->name);
-
-    // Optional: log action
-    Log::create([
-        'action' => "Created new user: {$user->name}",
-        'user_id' => Auth::id(),
-    ]);
 
     return redirect()
         ->route('admin.users.index')
@@ -142,11 +135,6 @@ public function update(Request $request, $id)
     // Update Spatie role pivot
     $user->syncRoles([$role->name]);
 
-    Log::create([
-        'action' => "Updated user: {$user->name}",
-        'user_id' => Auth::id(),
-    ]);
-
     return redirect()
         ->route('admin.users.index')
         ->with('success', 'User updated successfully.');
@@ -157,11 +145,6 @@ public function update(Request $request, $id)
     {
         $user = User::findOrFail($id);
         $user->delete();
-
-        Log::create([
-            'action' => "Deleted user: {$user->name}",
-            'user_id' => Auth::id(),
-        ]);
 
         return redirect()->back()->with('success', 'User deleted successfully.');
     }
@@ -176,11 +159,6 @@ public function toggleRole($id)
     } else {
         $user->syncRoles(['Admin']);
     }
-
-    Log::create([
-        'action' => "Toggled role for user: {$user->name}",
-        'user_id' => Auth::id(),
-    ]);
 
     return redirect()->back()->with('success', 'User role updated successfully.');
 }

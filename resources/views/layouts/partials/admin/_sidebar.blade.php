@@ -70,6 +70,14 @@
                 </ul>
             </li>
 
+{{-- Role Management --}}
+<li class="{{ Request::is('admin/roles*') ? 'active' : '' }}">
+    <a href="{{ route('admin.roles.index') }}">
+        <i class="zmdi zmdi-shield-security"></i>
+        <span>Role Management</span>
+    </a>
+</li>
+
 {{-- Messages --}}
 <li class="{{ request()->is('admin/messages*') ? 'active' : '' }}">
     <a href="{{ route('admin.messages.index') }}">

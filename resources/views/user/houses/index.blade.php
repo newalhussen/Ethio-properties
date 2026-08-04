@@ -1,4 +1,8 @@
 @extends('layouts.app')
+
+@section('title', 'Houses for Sale & Rent in Ethiopia | Ethio Property')
+@section('meta_description', 'Browse houses for sale and rent across Ethiopia. Filter by location, price, and bedrooms to find your next home.')
+
 @section('content')
 <div x-data="housePage()" x-init="init()" class="houses-page cars-page">
 
@@ -380,7 +384,7 @@
     <template x-for="house in filteredHouses()" :key="house.id">
       <a :href="'/houses/' + house.id" class="property-card block">
         <div class="relative">
-          <img :src="house.first_image || '/default-house.jpg'" alt="House">
+          <img :src="house.first_image || '/default-house.jpg'" :alt="house.title || 'House'">
 
           <span class="absolute top-3 left-3 bg-slate-800 text-white text-xs font-semibold px-3 py-1 rounded-full"
             x-text="house.purpose == 'for_sale' ? 'For Sale' : 'For Rent'"></span>
@@ -388,7 +392,7 @@
         <div class="property-info">
           <h3 x-text="house.title"></h3>
           <p class="text-sm text-gray-500 mb-2" x-text="house.location || house.region"></p>
-          <p class="price" x-text="'ETB ' + house.price + (house.purpose == 'for_rent' ? '/month' : '')"></p>
+          <p class="price" x-text="'ETB ' + house.price.toLocaleString() + (house.purpose == 'for_rent' ? '/month' : '')"></p>
 
           <div class="property-meta">
             <div>🛏 <span x-text="house.bedrooms || '-'"></span> Beds</div>
@@ -409,7 +413,6 @@
   </div>
 </main>
 </div>
-<script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
 <script>
 function housePage() {
   return {
@@ -438,7 +441,7 @@ function housePage() {
       amenities: [],
       property_type: "All",
     },
-    houses: {!! json_encode($housesForJS) !!},
+    houses: @json($housesForJS),
     init() {
       this.updateLocations();
     },

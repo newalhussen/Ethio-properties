@@ -21,7 +21,7 @@ class OwnerSettingsRequest extends FormRequest
             'name' => ['required','string','max:255'],
             'email' => ['required','email','max:255', Rule::unique('users')->ignore($userId)],
             'phone' => ['nullable','string','max:30'],
-            'avatar' => ['nullable','image','max:2048'],
+            'avatar' => ['nullable','image','mimes:jpg,jpeg,png,webp','max:2048'],
 
             // Notifications
             'notify_email_inquiries' => ['sometimes','boolean'],

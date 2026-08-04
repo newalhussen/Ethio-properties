@@ -1,5 +1,8 @@
 @extends('layouts.app')
 
+@section('title', 'Ethio Property - Buy, Sell & Rent Houses and Cars in Ethiopia')
+@section('meta_description', 'Ethiopia\'s marketplace for houses and cars. Browse thousands of listings for sale or rent, or post your own free.')
+
 @section('content')
 <style>
   /* ======= GLOBAL ======= */
@@ -373,7 +376,7 @@
 
     <img
         src="{{ $car->images && count($car->images) ? asset('storage/'.$car->images[0]) : 'https://via.placeholder.com/800x600?text=Car' }}"
-        alt="{{ $car->title_en }}"
+        alt="{{ $car->title_en ?? $car->brand.' '.$car->model }}"
         class="w-full h-32 object-cover">
 
     <div class="mt-2">
@@ -386,7 +389,7 @@
         </p>
 
         <span class="text-green-700 font-semibold text-sm mt-0.5 block">
-            {{ number_format($car->price) }} {{ $car->price_type ?? 'ETB' }}
+            ETB {{ number_format($car->price) }}
         </span>
     </div>
 </a>
@@ -422,7 +425,7 @@
         </p>
 
         <span class="text-green-700 font-semibold text-sm mt-0.5 block">
-            {{ number_format($house->price) }} {{ $house->price_type ?? 'ETB' }}
+            ETB {{ number_format($house->price) }}
         </span>
     </div>
 </a>
@@ -442,7 +445,7 @@
 
     <img
         src="{{ $car->images && count($car->images) ? asset('storage/'.$car->images[0]) : 'https://via.placeholder.com/800x600?text=Car' }}"
-        alt="{{ $car->title_en }}"
+        alt="{{ $car->title_en ?? $car->brand.' '.$car->model }}"
         class="w-full h-32 object-cover">
 
     <div class="mt-2">
@@ -455,7 +458,7 @@
         </p>
 
         <span class="text-green-700 font-semibold text-sm mt-0.5 block">
-            {{ number_format($car->price) }} {{ $car->price_type ?? 'ETB' }}
+            ETB {{ number_format($car->price) }}
         </span>
     </div>
 </a>
@@ -488,7 +491,7 @@
         </p>
 
         <span class="text-green-700 font-semibold text-sm mt-0.5 block">
-            {{ number_format($house->price) }} {{ $house->price_type ?? 'ETB' }}
+            ETB {{ number_format($house->price) }}
         </span>
     </div>
 </a>

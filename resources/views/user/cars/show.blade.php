@@ -1,5 +1,8 @@
 @extends('layouts.app')
 
+@section('title', ($car->title ?: $car->brand . ' ' . $car->model) . ' (' . $car->year . ') - ETB ' . number_format($car->price) . ' | Ethio Property')
+@section('meta_description', Str::limit(strip_tags($car->description ?: ($car->brand . ' ' . $car->model . ' ' . $car->year)), 155))
+
 @section('content')
 @php
   $slides = isset($imageUrls) && is_array($imageUrls) && count($imageUrls) ? $imageUrls : [];
@@ -315,7 +318,7 @@
                 
                 <a href="{{ route('user.cars.show', $similar->id) }}" 
                    class="bg-white border border-gray-200 rounded-xl overflow-hidden hover:shadow-md transition block">
-                    <img src="{{ $simImg }}" class="w-full h-56 object-cover">
+                    <img src="{{ $simImg }}" alt="{{ $similar->brand }} {{ $similar->model }}" class="w-full h-56 object-cover">
                     <div class="p-4">
                         <h3 class="font-semibold text-slate-900 text-lg">{{ $similar->brand }} {{ $similar->model }}</h3>
                         <p class="text-gray-600 text-sm">{{ $similar->year }} • {{ $similar->transmission }} • {{ $similar->fuel }}</p>

@@ -23,7 +23,7 @@
 
             @foreach($houses as $house)
                 @php
-                    $priceFormatted = number_format($house->price ?? 0, 2) . ' Birr';
+                    $priceFormatted = 'ETB ' . number_format($house->price ?? 0);
                 @endphp
 
                 <div class="house-card bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 flex overflow-hidden w-full h-40"

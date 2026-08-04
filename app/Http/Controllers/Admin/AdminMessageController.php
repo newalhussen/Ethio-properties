@@ -27,9 +27,14 @@ class AdminMessageController extends Controller
 
         $messages = $q->paginate(20)->withQueryString();
 
+        // Batch-load the referenced cars/houses instead of querying per row
+        $postIds = $messages->getCollection()->pluck('post_id')->filter()->unique();
+        $cars = Car::whereIn('id', $postIds)->get()->keyBy('id');
+        $houses = House::whereIn('id', $postIds)->get()->keyBy('id');
+
         // Resolve a small preview for each message (image, title, price)
-        $messages->getCollection()->transform(function ($msg) {
-            $postPreview = $this->resolvePostPreview($msg->post_id);
+        $messages->getCollection()->transform(function ($msg) use ($cars, $houses) {
+            $postPreview = $this->resolvePostPreview($msg->post_id, $cars, $houses);
             $msg->post_preview = $postPreview;
             return $msg;
         });
@@ -48,7 +53,9 @@ class AdminMessageController extends Controller
 
         $message->load('customer');
 
-        $message->post_preview = $this->resolvePostPreview($message->post_id);
+        $car = Car::where('id', $message->post_id)->get()->keyBy('id');
+        $house = House::where('id', $message->post_id)->get()->keyBy('id');
+        $message->post_preview = $this->resolvePostPreview($message->post_id, $car, $house);
 
         return view('admin.messages.show', compact('message'));
     }
@@ -69,12 +76,12 @@ class AdminMessageController extends Controller
     }
 
     // Helper: try to find the post in cars or houses and return small preview
-    private function resolvePostPreview($postId)
+    private function resolvePostPreview($postId, $cars, $houses)
     {
         if (!$postId) return null;
 
         // try Car first
-        $car = Car::find($postId);
+        $car = $cars->get($postId);
         if ($car) {
             $image = $this->firstImageUrl($car->images);
             $title = $car->title ?? trim(($car->brand ?? '') . ' ' . ($car->model ?? ''));
@@ -89,7 +96,7 @@ class AdminMessageController extends Controller
         }
 
         // try House
-        $house = House::find($postId);
+        $house = $houses->get($postId);
         if ($house) {
             $image = $this->firstImageUrl($house->images);
             // pick a readable title (title_en or fallback)

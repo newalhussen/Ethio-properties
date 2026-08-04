@@ -19,7 +19,7 @@
             <div class="flex justify-between items-center">
               <div>
                 <div class="font-semibold">{{ $h->title_en ?? $h->title }}</div>
-                <div class="text-gray-500 text-sm">ETB {{ $h->price }} • {{ $h->region }}</div>
+                <div class="text-gray-500 text-sm">ETB {{ number_format($h->price) }} • {{ $h->region }}</div>
               </div>
               <div class="flex gap-2">
                 <form action="{{ route('admin.houses.approve', $h->id) }}" method="POST">@csrf<button class="px-3 py-1 bg-green-600 text-white rounded">Approve</button></form>
@@ -43,7 +43,7 @@
             <div class="flex justify-between items-center">
               <div>
                 <div class="font-semibold">{{ $c->brand }} {{ $c->model }}</div>
-                <div class="text-gray-500 text-sm">ETB {{ $c->price }}</div>
+                <div class="text-gray-500 text-sm">ETB {{ number_format($c->price) }}</div>
               </div>
               <div class="flex gap-2">
                 <form action="{{ route('admin.cars.approve', $c->id) }}" method="POST">@csrf<button class="px-3 py-1 bg-green-600 text-white rounded">Approve</button></form>
@@ -117,7 +117,6 @@
   </div>
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
 @endsection
 
 

@@ -46,7 +46,7 @@
                                     @endif
                                     <p class="font-weight-bold mb-0">{{ $message->post_preview['title'] }}</p>
                                     @if($message->post_preview['price'])
-                                        <p class="text-muted small">Price: {{ number_format($message->post_preview['price'],2) }} Birr</p>
+                                        <p class="text-muted small">Price: ETB {{ number_format($message->post_preview['price']) }}</p>
                                     @endif
                                 @else
                                     <p class="text-muted small">No linked listing found (post_id: {{ $message->post_id }})</p>

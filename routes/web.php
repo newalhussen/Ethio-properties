@@ -2,7 +2,6 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\PropertyController;
 use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\CarController;
@@ -16,6 +15,7 @@ use App\Http\Controllers\UserProfileController;
 use App\Http\Controllers\Owner\OwnerSettingsController;
 use App\Http\Controllers\Admin\AdminProfileController;
 use App\Http\Controllers\SearchController;
+use App\Http\Controllers\SitemapController;
 use App\Http\Controllers\Auth\GoogleController;
 
 //Admin Routes
@@ -40,14 +40,14 @@ Route::get('/auth/google', [GoogleController::class, 'redirect'])->name('google.
 Route::get('/auth/google/callback', [GoogleController::class, 'callback']);
 
 Route::get('/login', [LoginController::class, 'showLoginForm'])->name('login');
-Route::post('/login', [LoginController::class, 'login']);
+Route::post('/login', [LoginController::class, 'login'])->middleware('throttle:5,1');
 Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
 Route::get('/register', [RegisterController::class, 'showRegistrationForm'])->name('register');
 Route::post('/register', [RegisterController::class, 'register']);
 
 // Admin Login Routes
 Route::get('/admin/login', [AdminController::class, 'showLoginForm'])->name('admin.login');
-Route::post('/admin/login', [AdminController::class, 'login']);
+Route::post('/admin/login', [AdminController::class, 'login'])->middleware('throttle:5,1');
 
 /*
 | Public Pages
@@ -55,12 +55,6 @@ Route::post('/admin/login', [AdminController::class, 'login']);
 
 Route::get('/', [UserHomeController::class, 'index'])->name('user.home');
 Route::get('/home', fn() => view('user.home'))->name('home');
-
-/*
-| Property Routes
-*/
-Route::get('/properties/create', [PropertyController::class, 'create'])->name('owner.properties.create');
-Route::post('/properties/store', [PropertyController::class, 'store'])->name('properties.store');
 
 /*
 | Car Routes (Public)
@@ -137,6 +131,8 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     // Optional: Buyers/Renters route if needed
     Route::get('/users/buyers', [App\Http\Controllers\UserController::class, 'buyers'])->name('users.buyers');
 
+    Route::get('/users/create', [App\Http\Controllers\UserController::class, 'create'])->name('users.create');
+    Route::post('/users', [App\Http\Controllers\UserController::class, 'store'])->name('users.store');
     Route::get('/users/{id}/edit', [App\Http\Controllers\UserController::class, 'edit'])->name('users.edit');
     Route::put('/users/{id}', [App\Http\Controllers\UserController::class, 'update'])->name('users.update');
     Route::get('/users/{id}', [App\Http\Controllers\UserController::class, 'show'])->name('users.show');
@@ -181,6 +177,14 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'admin'])->group(fun
     // Approve / Reject (AJAX)
     Route::post('/houses/{id}/approve', [App\Http\Controllers\Admin\HouseController::class, 'approve'])->name('houses.approve');
     Route::post('/houses/{id}/reject', [App\Http\Controllers\Admin\HouseController::class, 'reject'])->name('houses.reject');
+
+    // Role management
+    Route::get('/roles', [App\Http\Controllers\RoleController::class, 'index'])->name('roles.index');
+    Route::get('/roles/create', [App\Http\Controllers\RoleController::class, 'create'])->name('roles.create');
+    Route::post('/roles', [App\Http\Controllers\RoleController::class, 'store'])->name('roles.store');
+    Route::get('/roles/{id}/edit', [App\Http\Controllers\RoleController::class, 'edit'])->name('roles.edit');
+    Route::put('/roles/{id}', [App\Http\Controllers\RoleController::class, 'update'])->name('roles.update');
+    Route::delete('/roles/{id}', [App\Http\Controllers\RoleController::class, 'destroy'])->name('roles.destroy');
 });
 Route::prefix('owner')->middleware(['auth', 'owner'])->group(function () {
     Route::get('/houses/create', [HouseController::class, 'create'])->name('owner.house.create');
@@ -242,8 +246,10 @@ Route::prefix('admin')->name('admin.')->middleware(['auth','role:admin'])->group
     // Mark message viewed (POST)
     Route::post('/messages/{message}/view', [\App\Http\Controllers\Admin\AdminMessageController::class, 'markViewed'])->name('messages.markViewed');
 });
-Route::get('/admin/cars/{id}/edit', [\App\Http\Controllers\Admin\CarController::class, 'edit'])->name('admin.cars.edit');
-Route::post('/admin/cars/{id}/update', [\App\Http\Controllers\Admin\CarController::class, 'update'])->name('admin.cars.update');
+Route::get('/admin/cars/{id}/edit', [\App\Http\Controllers\Admin\CarController::class, 'edit'])->middleware(['auth', 'admin'])->name('admin.cars.edit');
+Route::post('/admin/cars/{id}/update', [\App\Http\Controllers\Admin\CarController::class, 'update'])->middleware(['auth', 'admin'])->name('admin.cars.update');
+
+Route::get('/sitemap.xml', [SitemapController::class, 'index'])->name('sitemap');
 
 Route::get('/search', [SearchController::class, 'index'])->name('search.index');
 Route::get('/search/suggest', [SearchController::class, 'suggest'])->name('search.suggest');

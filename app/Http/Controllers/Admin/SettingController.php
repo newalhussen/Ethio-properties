@@ -59,10 +59,10 @@ public function site()
             $this->validate($request, [
                 'siteTitle' => 'required',
                 'SiteMoto' => 'required',
-                'logo_transparent' => 'nullable|mimes:jpeg,jpg,bmp,png,svg',
-                'logo_white' => 'nullable|mimes:jpeg,jpg,bmp,png,svg',
-                'logo_footer' => 'nullable|mimes:jpeg,jpg,bmp,png,svg',
-                'favicon' => 'nullable|mimes:jpeg,jpg,bmp,png,svg',
+                'logo_transparent' => 'nullable|mimes:jpeg,jpg,bmp,png',
+                'logo_white' => 'nullable|mimes:jpeg,jpg,bmp,png',
+                'logo_footer' => 'nullable|mimes:jpeg,jpg,bmp,png',
+                'favicon' => 'nullable|mimes:jpeg,jpg,bmp,png',
                 'keywords' => 'required',
                 'sitedescription' => 'required',
             ]);
@@ -75,7 +75,7 @@ public function site()
             if ($request->hasFile('logo_transparent')) {
                 if (isset($image1)) {
                     $currentDate = Carbon::now()->toDateString();
-                    $imagename1 = $slug . '-' . $currentDate . '-' . uniqid() . '.' . $image1->getClientOriginalExtension();
+                    $imagename1 = $slug . '-' . $currentDate . '-' . uniqid() . '.' . $image1->extension();
 
                     if (!file_exists('uploads/Setting')) {
                         mkdir('uploads/Setting', 0777, true);
@@ -89,7 +89,7 @@ public function site()
             if ($request->hasFile('logo_white')) {
                 if (isset($image2)) {
                     $currentDate = Carbon::now()->toDateString();
-                    $imagename2 = $slug . '-' . $currentDate . '-' . uniqid() . '.' . $image2->getClientOriginalExtension();
+                    $imagename2 = $slug . '-' . $currentDate . '-' . uniqid() . '.' . $image2->extension();
 
                     if (!file_exists('uploads/Setting')) {
                         mkdir('uploads/Setting', 0777, true);
@@ -103,7 +103,7 @@ public function site()
             if ($request->hasFile('logo_footer')) {
                 if (isset($image3)) {
                     $currentDate = Carbon::now()->toDateString();
-                    $imagename3 = $slug . '-' . $currentDate . '-' . uniqid() . '.' . $image3->getClientOriginalExtension();
+                    $imagename3 = $slug . '-' . $currentDate . '-' . uniqid() . '.' . $image3->extension();
 
                     if (!file_exists('uploads/Setting')) {
                         mkdir('uploads/Setting', 0777, true);
@@ -117,7 +117,7 @@ public function site()
             if ($request->hasFile('favicon')) {
                 if (isset($image4)) {
                     $currentDate = Carbon::now()->toDateString();
-                    $imagename4 = $slug . '-' . $currentDate . '-' . uniqid() . '.' . $image4->getClientOriginalExtension();
+                    $imagename4 = $slug . '-' . $currentDate . '-' . uniqid() . '.' . $image4->extension();
 
                     if (!file_exists('uploads/Setting')) {
                         mkdir('uploads/Setting', 0777, true);
@@ -261,7 +261,7 @@ public function site()
                 'intro' => 'required',
                 'intro_am' => 'required',
                 'intro_or' => 'required',
-                'photo' => 'nullable|mimes:jpeg,jpg,bmp,png,svg',
+                'photo' => 'nullable|mimes:jpeg,jpg,bmp,png',
             ]);
             $setting = HeadMessage::find(1);
             $setting->full_name = $request->full_name;
@@ -279,7 +279,7 @@ public function site()
 
                 if (isset($image4)) {
                     $currentDate = Carbon::now()->toDateString();
-                    $imagename4 = $slug . '-' . $currentDate . '-' . uniqid() . '.' . $image4->getClientOriginalExtension();
+                    $imagename4 = $slug . '-' . $currentDate . '-' . uniqid() . '.' . $image4->extension();
 
                     if (!file_exists('uploads/Head')) {
                         mkdir('uploads/Head', 0777, true);

@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Car;
+use Illuminate\Support\Facades\Storage;
 
 class CarController extends Controller
 {
@@ -109,7 +110,42 @@ public function update(Request $request, $id)
 {
     $car = Car::findOrFail($id);
 
-    $car->update($request->all());
+    $data = $request->only([
+        'brand', 'model', 'title', 'title_am', 'description', 'description_am',
+        'year', 'transmission', 'body_type', 'color', 'fuel', 'engine_size',
+        'seats', 'doors', 'drive_type', 'condition', 'mileage', 'price',
+        'seller_name', 'seller_type', 'contact_phone', 'contact_email',
+        'seller_address', 'sale_rent', 'price_type',
+    ]);
+
+    $oldImages = $car->images ?? [];
+    $oldVideo = $car->video;
+
+    if ($request->hasFile('images')) {
+        $paths = [];
+        foreach ($request->file('images') as $img) {
+            $paths[] = $img->store('cars/images', 'public');
+        }
+        $data['images'] = $paths;
+    }
+
+    if ($request->hasFile('video')) {
+        $data['video'] = $request->file('video')->store('cars/videos', 'public');
+    }
+
+    $car->update($data);
+
+    if ($request->hasFile('images')) {
+        foreach ($oldImages as $oldImg) {
+            if (Storage::disk('public')->exists($oldImg)) {
+                Storage::disk('public')->delete($oldImg);
+            }
+        }
+    }
+
+    if ($request->hasFile('video') && !empty($oldVideo) && Storage::disk('public')->exists($oldVideo)) {
+        Storage::disk('public')->delete($oldVideo);
+    }
 
     return redirect()
         ->route('admin.cars.show', $car->id)

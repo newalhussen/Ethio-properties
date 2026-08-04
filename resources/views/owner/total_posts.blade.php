@@ -28,7 +28,7 @@
             @forelse($allListings as $item)
                 @php
                     $type = $item instanceof \App\Models\Car ? 'car' : 'house';
-                    $priceFormatted = number_format($item->price ?? 0, 2) . ' Birr';
+                    $priceFormatted = 'ETB ' . number_format($item->price ?? 0);
                 @endphp
            <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 flex overflow-hidden w-full h-40 relative" data-type="{{ $type }}">
 

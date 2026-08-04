@@ -98,7 +98,12 @@ class OwnerSettingsController extends Controller
         }
 
         if ($section === 'delete_account') {
-            // recommended: confirm in frontend modal before sending
+            $current = $request->input('current_password');
+
+            if (! $current || ! Hash::check($current, $user->password)) {
+                return back()->withErrors(['current_password' => 'Current password is incorrect.']);
+            }
+
             $user->delete();
             auth()->logout();
             return redirect('/')->with('success', 'Account deleted.');

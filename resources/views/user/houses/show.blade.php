@@ -1,5 +1,8 @@
 @extends('layouts.app')
 
+@section('title', $house->title . ' - ETB ' . number_format($house->price) . ' | Ethio Property')
+@section('meta_description', Str::limit(strip_tags($house->description_en ?? $house->title), 155))
+
 @section('content')
 @php
   $slides = isset($imageUrls) && is_array($imageUrls) && count($imageUrls) ? $imageUrls : [];
@@ -38,12 +41,12 @@
                     :style="`transform: translateX(-${current * 100}%);`"
                 >
                     <template x-for="(slide, i) in slides" :key="i">
-                        <img :src="slide" class="w-full h-full md:object-cover object-contain flex-shrink-0">
+                        <img :src="slide" alt="{{ $house->title }}" class="w-full h-full md:object-cover object-contain flex-shrink-0">
                     </template>
 
                     <!-- fallback -->
                     <template x-if="!slides.length">
-                        <img src='https://placehold.co/1200x800?text=No+Image' class="w-full h-full object-cover">
+                        <img src='https://placehold.co/1200x800?text=No+Image' alt="No image available" class="w-full h-full object-cover">
                     </template>
                 </div>
 
@@ -116,34 +119,39 @@
 </button>
 
     <!-- Hidden Form -->
-<div 
-    id="callbackFormWrapper" 
-    class="mt-4 hidden opacity-0 translate-y-2 transition-all duration-300"
+<div
+    id="callbackFormWrapper"
+    class="mt-4 {{ $errors->any() ? '' : 'hidden opacity-0 translate-y-2' }} transition-all duration-300"
 >
-    <form action="{{ route('owner.messages.store') }}" method="POST" class="space-y-4">
+    <form action="{{ route('houses.contact', $house->id) }}" method="POST" class="space-y-4">
         @csrf
 
-        <input type="hidden" name="post_id" value="{{ $house->id }}">
-        <input type="hidden" name="post_type" value="house">
-        <input type="hidden" name="type" value="callback">
-
-        <input 
-            type="text" 
-            name="name" 
+        <input
+            type="text"
+            name="name"
+            value="{{ old('name') }}"
             placeholder="Your Name"
             class="w-full px-4 py-3 rounded-xl border border-gray-300 focus:ring-2 focus:ring-slate-800 focus:border-slate-800"
             required
         >
 
-        <input 
-            type="text" 
-            name="phone" 
+        <input
+            type="text"
+            name="phone"
+            value="{{ old('phone') }}"
             placeholder="Phone Number"
             class="w-full px-4 py-3 rounded-xl border border-gray-300 focus:ring-2 focus:ring-slate-800 focus:border-slate-800"
             required
         >
 
-        <button 
+        <textarea
+            name="message"
+            placeholder="Message (optional)"
+            rows="3"
+            class="w-full px-4 py-3 rounded-xl border border-gray-300 focus:ring-2 focus:ring-slate-800 focus:border-slate-800"
+        >{{ old('message') }}</textarea>
+
+        <button
             type="submit"
             class="w-full py-3 bg-slate-800 text-white rounded-xl font-semibold hover:bg-slate-900 transition"
         >
@@ -319,7 +327,7 @@
 
             <a href="{{ route('houses.show', $sim->id) }}"
                class="bg-white border border-gray-200 rounded-xl overflow-hidden hover:shadow-md transition block">
-                <img src="{{ $simImg }}" class="w-full h-56 object-cover">
+                <img src="{{ $simImg }}" alt="{{ $sim->title }}" class="w-full h-56 object-cover">
                 <div class="p-2">
                     <h3 class="font-semibold text-slate-900 text-sm">{{ $sim->title }}</h3>
                     <p class="text-gray-600">{{ $sim->subcity ?? $sim->city }}</p>
@@ -332,7 +340,6 @@
 
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
 <script>
 document.addEventListener("DOMContentLoaded", () => {
     const btn = document.getElementById("callbackToggleBtn");
